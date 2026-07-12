@@ -13,28 +13,28 @@
 </p>
 
 <p align="center">
-  <b>Русский</b> · <a href="README.en.md">English</a>
+  <a href="README.md">Русский</a> · <b>English</b>
 </p>
 
 # Stream Deck Plugins
 
-Коллекция кастомных плагинов для [Elgato Stream Deck](https://www.elgato.com/stream-deck).
+A collection of custom plugins for [Elgato Stream Deck](https://www.elgato.com/stream-deck).
 
-## Плагины
+## Plugins
 
-| Плагин | Версия | Описание |
-|--------|--------|----------|
-| [**True Cursor Usage**](./plugins/cursor-usage/) | `0.2.0.0` | Остаток Cursor AI usage на кнопках и dials (Total / Auto / API) |
+| Plugin | Version | Description |
+|--------|---------|-------------|
+| [**True Cursor Usage**](./plugins/cursor-usage/README.en.md) | `0.2.0.0` | Remaining Cursor AI usage on keys and dials (Total / Auto / API) |
 
-## Установка
+## Installation
 
-### Для пользователей (без сборки)
+### For users (no build required)
 
-1. Откройте [**Releases**](https://github.com/Hanokiru/streamdeck-plugins/releases) на GitHub
-2. Скачайте `com.hanokiru.cursor-usage.streamDeckPlugin`
-3. Дважды кликните по файлу — Stream Deck установит плагин
+1. Open [**Releases**](https://github.com/Hanokiru/streamdeck-plugins/releases) on GitHub
+2. Download `com.hanokiru.cursor-usage.streamDeckPlugin`
+3. Double-click the file — Stream Deck will install the plugin
 
-### Для разработчиков (из исходников)
+### For developers (from source)
 
 ```bash
 git clone https://github.com/Hanokiru/streamdeck-plugins.git
@@ -44,53 +44,53 @@ npm run icons
 npm run build
 ```
 
-Скопируйте `com.hanokiru.cursor-usage.sdPlugin` в каталог плагинов:
+Copy `com.hanokiru.cursor-usage.sdPlugin` to the plugins folder:
 
-| ОС | Путь |
+| OS | Path |
 |----|------|
 | **Windows** | `%APPDATA%\Elgato\StreamDeck\Plugins\` |
 | **macOS** | `~/Library/Application Support/com.elgato.StreamDeck/Plugins/` |
 
-Перезапустите Stream Deck.
+Restart Stream Deck.
 
-## Сборка релиза
+## Building a release
 
 ```bash
 cd plugins/cursor-usage
 npm run pack
 ```
 
-Архив появится в `plugins/cursor-usage/releases/`.
+The package will appear in `plugins/cursor-usage/releases/`.
 
-## Разработка
+## Development
 
 ```bash
 cd plugins/cursor-usage
-npm run watch   # hot-reload (нужен Stream Deck CLI)
+npm run watch   # hot-reload (requires Stream Deck CLI)
 ```
 
-## Структура репозитория
+## Repository structure
 
 ```
 streamdeck-plugins/
 ├── plugins/
 │   └── cursor-usage/
-│       ├── src/                    # TypeScript исходники
-│       ├── scripts/                # генерация иконок
+│       ├── src/                    # TypeScript sources
+│       ├── scripts/                # icon generation
 │       ├── com.hanokiru.cursor-usage.sdPlugin/
 │       │   ├── manifest.json
 │       │   ├── ui/
 │       │   ├── layouts/
 │       │   └── imgs/
-│       └── releases/               # .streamDeckPlugin (не в git)
+│       └── releases/               # .streamDeckPlugin (not in git)
 ├── .github/workflows/ci.yml
 └── LICENSE
 ```
 
-## Что не попадает в git
+## What is not committed to git
 
-Сборочные артефакты (`bin/plugin.js`, `sql-wasm.wasm`, `*.streamDeckPlugin`) игнорируются — каждый собирает локально или качает из Releases. **Ваш токен в репозиторий не попадает** — он хранится только в настройках Stream Deck на вашем ПК.
+Build artifacts (`bin/plugin.js`, `sql-wasm.wasm`, `*.streamDeckPlugin`) are gitignored — build locally or download from Releases. **Your session token is never stored in the repo** — it lives only in Stream Deck settings on your PC.
 
-## Автор
+## Author
 
 [Hanokiru](https://github.com/Hanokiru)

@@ -11,6 +11,10 @@
   <a href="https://github.com/Hanokiru/streamdeck-plugins/releases"><img src="https://img.shields.io/badge/download-Releases-A78BFA?style=flat-square&logo=github&logoColor=4C1D95" alt="Download" /></a>
 </p>
 
+<p align="center">
+  <b>Русский</b> · <a href="README.en.md">English</a>
+</p>
+
 # True Cursor Usage
 
 Показывает остаток Cursor AI usage на кнопках и **Stream Deck+** dials — как в дашборде Cursor.
@@ -60,7 +64,7 @@ npm run build
 
 | Параметр | По умолчанию | Описание |
 |----------|--------------|----------|
-| Session / Token | (авто) | Cookie или JWT из Cursor |
+| Session / Token | (авто) | Cookie или JWT |
 | Display metric | Total Spend | Метрика по умолчанию |
 | Refresh interval | 300 сек | Автообновление (мин. 60) |
 | Warning below | 20% | Порог предупреждения |
@@ -74,7 +78,7 @@ npm run pack
 
 ## Как это работает
 
-Плагин использует `WorkosCursorSessionToken` (cookie) или JWT из `state.vscdb` Cursor и запрашивает usage через `api2.cursor.sh`. Эндпоинты неофициальные и могут измениться.
+Плагин использует `WorkosCursorSessionToken` (cookie) или JWT из `state.vscdb` и запрашивает usage через `api2.cursor.sh`. Эндпоинты неофициальные и могут измениться.
 
 ## Разработка
 
