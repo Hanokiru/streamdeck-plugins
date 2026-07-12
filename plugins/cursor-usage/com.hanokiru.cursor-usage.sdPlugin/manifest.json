@@ -1,0 +1,62 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Name": "True Cursor Usage",
+  "Version": "0.2.0.0",
+  "Author": "Hanokiru",
+  "Actions": [
+    {
+      "Name": "Show Usage",
+      "UUID": "com.hanokiru.cursor-usage.action",
+      "Icon": "imgs/actions/usage/icon",
+      "Tooltip": "Shows Cursor usage (Total, Auto, Composer/API). Press or turn to switch metrics.",
+      "PropertyInspectorPath": "ui/usage.html",
+      "Controllers": [
+        "Keypad",
+        "Encoder"
+      ],
+      "UserTitleEnabled": false,
+      "Encoder": {
+        "layout": "layouts/usage-dial.json",
+        "StackColor": "#7C3AED",
+        "Icon": "imgs/actions/usage/icon",
+        "TriggerDescription": {
+          "Rotate": "Switch metric",
+          "Push": "Refresh usage",
+          "Touch": "Refresh usage"
+        }
+      },
+      "States": [
+        {
+          "Image": "imgs/actions/usage/key",
+          "TitleAlignment": "middle",
+          "FontSize": 12
+        }
+      ],
+      "SupportedInMultiActions": false
+    }
+  ],
+  "Category": "True Cursor Usage",
+  "CategoryIcon": "imgs/plugin/category-icon",
+  "CodePath": "bin/plugin.js",
+  "Description": "Display Cursor AI usage on keys and dials — Total Spend, Auto, Composer/API, and Total %. Purple theme with live SVG updates.",
+  "Icon": "imgs/plugin/marketplace",
+  "SDKVersion": 3,
+  "Software": {
+    "MinimumVersion": "6.9"
+  },
+  "OS": [
+    {
+      "Platform": "mac",
+      "MinimumVersion": "12"
+    },
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Nodejs": {
+    "Version": "20",
+    "Debug": "enabled"
+  },
+  "UUID": "com.hanokiru.cursor-usage"
+}

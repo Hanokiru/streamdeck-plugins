@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>True Cursor Usage Settings</title>
+    <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      body {
+        --sdpi-bgcolor: #1e1033;
+        --sdpi-color: #f5f3ff;
+        --sdpi-bordercolor: #7c3aed;
+      }
+
+      .hint {
+        color: #c4b5fd;
+        font-size: 11px;
+        margin: 4px 0 0;
+      }
+    </style>
+  </head>
+  <body>
+    <sdpi-item label="Session / Token">
+      <sdpi-textfield
+        setting="accessToken"
+        placeholder="JWT or WorkosCursorSessionToken from cursor.com cookies"
+        type="password"
+      ></sdpi-textfield>
+    </sdpi-item>
+
+    <sdpi-item label="Refresh Token (optional)">
+      <sdpi-textfield
+        setting="refreshToken"
+        placeholder="Only if auto-refresh is needed"
+        type="password"
+      ></sdpi-textfield>
+    </sdpi-item>
+
+    <sdpi-item label="Display metric">
+      <sdpi-select setting="displayMode" default="total">
+        <option value="total">Total Spend ($ left)</option>
+        <option value="auto">Auto (% left)</option>
+        <option value="api">Composer / API (% left)</option>
+        <option value="totalPercent">Total % (all usage)</option>
+      </sdpi-select>
+      <p class="hint">On Stream Deck+ dials, rotate to cycle metrics.</p>
+    </sdpi-item>
+
+    <sdpi-item label="Refresh interval (sec)">
+      <sdpi-range
+        setting="pollIntervalSeconds"
+        min="60"
+        max="3600"
+        step="60"
+        default="300"
+      ></sdpi-range>
+    </sdpi-item>
+
+    <sdpi-item label="Warning below (%)">
+      <sdpi-range
+        setting="warningRemainingPercent"
+        min="5"
+        max="50"
+        step="5"
+        default="20"
+      ></sdpi-range>
+    </sdpi-item>
+  </body>
+</html>

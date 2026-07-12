@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
+    <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4C1D95"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#A78BFA"/>
+      <stop offset="100%" stop-color="#C4B5FD"/>
+    </linearGradient>
+  </defs>
+    <rect width="144" height="144" rx="22" fill="url(#bg)"/>
+    <circle cx="72" cy="58" r="30" fill="#4C1D95" opacity="0.45"/>
+    <text x="72" y="70" text-anchor="middle" fill="#F5F3FF" font-size="34" font-family="Segoe UI, Arial, sans-serif" font-weight="700">A</text>
+    <text x="72" y="112" text-anchor="middle" fill="#C4B5FD" font-size="14" font-family="Segoe UI, Arial, sans-serif" font-weight="600">AUTO</text>
+    <rect x="24" y="122" width="96" height="8" rx="4" fill="#4C1D95" opacity="0.5"/>
+    <rect x="24" y="122" width="64" height="8" rx="4" fill="#A78BFA"/>
+  </svg>

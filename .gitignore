@@ -1,0 +1,33 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+Thumbs.db
+
+# Build artifacts (generated via npm run build)
+**/*.sdPlugin/bin/plugin.js
+**/*.sdPlugin/bin/sql-wasm.wasm
+**/*.sdPlugin/bin/package.json
+
+# Release packages
+*.streamDeckPlugin
+releases/
+
+# Plugin runtime logs on user machines
+*.sdPlugin/logs/*
+!*.sdPlugin/logs/.gitkeep
+
+# Local secrets
+.env
+.env.*
+*.local
+
+# Editor / OS
+.idea/
+.vscode/
+*.swp
+*~
+
+# Local git tooling (not for repo)
+scripts/install-git-hooks.sh
+.git/hooks/prepare-commit-msg
