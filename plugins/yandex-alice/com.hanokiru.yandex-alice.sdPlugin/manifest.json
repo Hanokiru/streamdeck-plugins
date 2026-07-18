@@ -1,0 +1,226 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Name": "Yandex Alice Home",
+  "Version": "0.3.0.0",
+  "Author": "Hanokiru",
+  "Actions": [
+    {
+      "Name": "Run Scenario",
+      "UUID": "com.hanokiru.yandex-alice.scenario",
+      "Icon": "imgs/actions/scenario/icon",
+      "Tooltip": "Run a Yandex Smart Home scenario.",
+      "PropertyInspectorPath": "ui/scenario.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/scenario/key",
+          "TitleAlignment": "bottom",
+          "FontSize": 11
+        }
+      ],
+      "SupportedInMultiActions": true
+    },
+    {
+      "Name": "Toggle Device",
+      "UUID": "com.hanokiru.yandex-alice.device",
+      "Icon": "imgs/actions/device/icon",
+      "Tooltip": "Toggle a Yandex Smart Home device on/off.",
+      "PropertyInspectorPath": "ui/device.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Name": "Off",
+          "Image": "imgs/actions/device/off",
+          "TitleAlignment": "bottom",
+          "FontSize": 11
+        },
+        {
+          "Name": "On",
+          "Image": "imgs/actions/device/on",
+          "TitleAlignment": "bottom",
+          "FontSize": 11
+        }
+      ],
+      "SupportedInMultiActions": true
+    },
+    {
+      "Name": "Device Dial",
+      "UUID": "com.hanokiru.yandex-alice.dial",
+      "Icon": "imgs/actions/dial/icon",
+      "Tooltip": "Control brightness, volume, temperature and other ranges with a dial.",
+      "PropertyInspectorPath": "ui/dial.html",
+      "Controllers": [
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "layouts/device-dial.json",
+        "StackColor": "#A855F7",
+        "Icon": "imgs/actions/dial/encoder",
+        "TriggerDescription": {
+          "Rotate": "Adjust value",
+          "Push": "Press action",
+          "Touch": "Press action"
+        }
+      },
+      "States": [
+        {
+          "Image": "imgs/actions/dial/generic",
+          "TitleAlignment": "middle",
+          "FontSize": 11
+        }
+      ],
+      "SupportedInMultiActions": false
+    },
+    {
+      "Name": "Color Light",
+      "UUID": "com.hanokiru.yandex-alice.color",
+      "Icon": "imgs/actions/color/icon",
+      "Tooltip": "Cycle color temperature / HSV / scenes. Dial fine-tunes.",
+      "PropertyInspectorPath": "ui/color.html",
+      "Controllers": [
+        "Keypad",
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "layouts/device-dial.json",
+        "StackColor": "#C026FF",
+        "Icon": "imgs/actions/color/key",
+        "TriggerDescription": {
+          "Rotate": "Adjust color / temperature",
+          "Push": "Cycle preset",
+          "Touch": "Cycle preset"
+        }
+      },
+      "States": [
+        {
+          "Image": "imgs/actions/color/key",
+          "TitleAlignment": "bottom",
+          "FontSize": 11
+        }
+      ],
+      "SupportedInMultiActions": true
+    },
+    {
+      "Name": "Device Mode",
+      "UUID": "com.hanokiru.yandex-alice.mode",
+      "Icon": "imgs/actions/mode/icon",
+      "Tooltip": "Cycle device modes (AC, purifier, vacuum…).",
+      "PropertyInspectorPath": "ui/mode.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/mode/key",
+          "TitleAlignment": "bottom",
+          "FontSize": 11
+        }
+      ],
+      "SupportedInMultiActions": true
+    },
+    {
+      "Name": "Room / Group",
+      "UUID": "com.hanokiru.yandex-alice.room",
+      "Icon": "imgs/actions/room/icon",
+      "Tooltip": "Toggle a whole room or group. Dial sets room brightness.",
+      "PropertyInspectorPath": "ui/room.html",
+      "Controllers": [
+        "Keypad",
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "layouts/device-dial.json",
+        "StackColor": "#7C3AED",
+        "Icon": "imgs/actions/room/key",
+        "TriggerDescription": {
+          "Rotate": "Room brightness",
+          "Push": "Toggle room / group",
+          "Touch": "Toggle room / group"
+        }
+      },
+      "States": [
+        {
+          "Image": "imgs/actions/room/key",
+          "TitleAlignment": "bottom",
+          "FontSize": 11
+        }
+      ],
+      "SupportedInMultiActions": true
+    },
+    {
+      "Name": "Sensor",
+      "UUID": "com.hanokiru.yandex-alice.sensor",
+      "Icon": "imgs/actions/sensor/icon",
+      "Tooltip": "Show sensor values (temperature, humidity, CO2…).",
+      "PropertyInspectorPath": "ui/sensor.html",
+      "Controllers": [
+        "Keypad",
+        "Encoder"
+      ],
+      "Encoder": {
+        "layout": "layouts/device-dial.json",
+        "StackColor": "#A78BFA",
+        "Icon": "imgs/actions/sensor/key",
+        "TriggerDescription": {
+          "Rotate": "No action",
+          "Push": "Refresh sensor",
+          "Touch": "Refresh sensor"
+        }
+      },
+      "States": [
+        {
+          "Image": "imgs/actions/sensor/key",
+          "TitleAlignment": "bottom",
+          "FontSize": 11
+        }
+      ],
+      "SupportedInMultiActions": false
+    },
+    {
+      "Name": "Quick Preset",
+      "UUID": "com.hanokiru.yandex-alice.preset",
+      "Icon": "imgs/actions/preset/icon",
+      "Tooltip": "Run a multi-step smart home macro with one press.",
+      "PropertyInspectorPath": "ui/preset.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/preset/key",
+          "TitleAlignment": "bottom",
+          "FontSize": 11
+        }
+      ],
+      "SupportedInMultiActions": true
+    }
+  ],
+  "Category": "Yandex Alice Home",
+  "CategoryIcon": "imgs/plugin/category-icon",
+  "CodePath": "bin/plugin.js",
+  "Description": "Control Yandex Smart Home (Alice): scenarios, devices, dials, color, modes, rooms, sensors and presets.",
+  "Icon": "imgs/plugin/marketplace",
+  "SDKVersion": 3,
+  "Software": {
+    "MinimumVersion": "6.9"
+  },
+  "OS": [
+    {
+      "Platform": "mac",
+      "MinimumVersion": "12"
+    },
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Nodejs": {
+    "Version": "20",
+    "Debug": "enabled"
+  },
+  "UUID": "com.hanokiru.yandex-alice"
+}

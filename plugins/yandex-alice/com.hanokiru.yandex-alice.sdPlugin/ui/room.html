@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Room / Group</title>
+    <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+    <link rel="stylesheet" href="alice.css" />
+  </head>
+  <body>
+    <sdpi-item label="OAuth token">
+      <sdpi-textarea setting="oauthToken" global="true" rows="2"></sdpi-textarea>
+    </sdpi-item>
+    <p class="hint">Key toggles whole room/group. Dial sets brightness for lights inside.</p>
+    <sdpi-item label="Target type">
+      <select class="native" id="targetKind">
+        <option value="room">Room</option>
+        <option value="group">Group</option>
+      </select>
+    </sdpi-item>
+    <sdpi-item label="Target">
+      <div class="row">
+        <select class="native" id="targetSelect" style="flex:1"></select>
+        <button class="refresh" id="refreshBtn" type="button">↻</button>
+      </div>
+    </sdpi-item>
+    <sdpi-item label="Press">
+      <select class="native" id="pressAction">
+        <option value="toggle">Toggle</option>
+        <option value="on">Always ON</option>
+        <option value="off">Always OFF</option>
+      </select>
+    </sdpi-item>
+    <p id="status"></p>
+    <script>
+      const { streamDeckClient } = SDPIComponents;
+      let rooms = [], groups = [], loadTimer;
+      function setStatus(t) { document.getElementById("status").textContent = t || ""; }
+      function fill() {
+        const kind = document.getElementById("targetKind").value;
+        const sel = document.getElementById("targetSelect");
+        const cur = sel.value;
+        sel.innerHTML = "";
+        const list = kind === "group" ? groups : rooms;
+        const empty = document.createElement("option");
+        empty.value = ""; empty.textContent = list.length ? "— select —" : "— none —";
+        sel.appendChild(empty);
+        for (const item of list) {
+          const o = document.createElement("option");
+          o.value = item.id;
+          o.textContent = `${item.name} (${(item.deviceIds||[]).length})`;
+          sel.appendChild(o);
+        }
+        if (cur) sel.value = cur;
+      }
+      async function persist() {
+        const kind = document.getElementById("targetKind").value;
+        const list = kind === "group" ? groups : rooms;
+        const item = list.find((x) => x.id === document.getElementById("targetSelect").value);
+        const payload = await streamDeckClient.getSettings();
+        const s = { ...(payload.settings || {}) };
+        s.targetKind = kind;
+        s.targetId = item?.id || "";
+        s.targetName = item?.name || "";
+        s.pressAction = document.getElementById("pressAction").value;
+        streamDeckClient.setSettings(s);
+      }
+      async function restore() {
+        const payload = await streamDeckClient.getSettings();
+        const s = payload?.settings || {};
+        if (s.targetKind) document.getElementById("targetKind").value = s.targetKind;
+        fill();
+        if (s.targetId) document.getElementById("targetSelect").value = s.targetId;
+        if (s.pressAction) document.getElementById("pressAction").value = s.pressAction;
+      }
+      async function refresh() {
+        setStatus("Loading…");
+        clearTimeout(loadTimer);
+        loadTimer = setTimeout(() => setStatus("No response from plugin."), 8000);
+        await streamDeckClient.send("sendToPlugin", { event: "refreshHome" });
+      }
+      document.getElementById("refreshBtn").onclick = () => void refresh();
+      document.getElementById("targetKind").onchange = () => { fill(); void persist(); };
+      document.getElementById("targetSelect").onchange = () => void persist();
+      document.getElementById("pressAction").onchange = () => void persist();
+      streamDeckClient.sendToPropertyInspector.subscribe((ev) => {
+        const p = ev?.payload ?? {};
+        if (p.event === "homeLoading") return setStatus("Loading…");
+        clearTimeout(loadTimer);
+        if (p.event === "homeData") {
+          rooms = p.rooms || [];
+          groups = p.groups || [];
+          void restore().then(() => setStatus(`Rooms ${rooms.length}, groups ${groups.length}`));
+        }
+        if (p.event === "homeError") setStatus("Error: " + (p.detail || p.message));
+      });
+      window.addEventListener("load", () => setTimeout(() => void refresh(), 300));
+    </script>
+  </body>
+</html>

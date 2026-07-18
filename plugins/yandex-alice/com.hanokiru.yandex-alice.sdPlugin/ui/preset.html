@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Quick Preset</title>
+    <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+    <link rel="stylesheet" href="alice.css" />
+  </head>
+  <body>
+    <sdpi-item label="OAuth token">
+      <sdpi-textarea setting="oauthToken" global="true" rows="2"></sdpi-textarea>
+    </sdpi-item>
+    <p class="hint">Macro: run several actions with one key (scenario, power, brightness, color temp, mode).</p>
+    <sdpi-item label="Preset name">
+      <input class="native" id="presetName" placeholder="Movie night" />
+    </sdpi-item>
+    <sdpi-item label="Add step">
+      <div class="field">
+        <select class="native" id="stepType">
+          <option value="scenario">Run scenario</option>
+          <option value="power">Device power</option>
+          <option value="range">Device range</option>
+          <option value="color_temp">Color temperature</option>
+          <option value="mode">Device mode</option>
+        </select>
+      </div>
+      <div class="field" style="margin-top:6px">
+        <select class="native" id="stepTarget"></select>
+      </div>
+      <div class="grid-2" style="margin-top:6px">
+        <input class="native" id="stepExtra" placeholder="value / instance" />
+        <select class="native" id="stepOn">
+          <option value="true">ON</option>
+          <option value="false">OFF</option>
+        </select>
+      </div>
+      <button class="btn" id="addBtn" type="button" style="margin-top:8px">+ Add step</button>
+      <button class="refresh" id="refreshBtn" type="button" style="margin-top:8px;width:100%;padding:8px">↻ Refresh lists</button>
+    </sdpi-item>
+    <sdpi-item label="Steps">
+      <div class="steps" id="stepsList"></div>
+    </sdpi-item>
+    <p id="status"></p>
+    <script>
+      const { streamDeckClient } = SDPIComponents;
+      let devices = [], scenarios = [], steps = [], loadTimer;
+      function setStatus(t) { document.getElementById("status").textContent = t || ""; }
+      function paintSteps() {
+        const box = document.getElementById("stepsList");
+        box.innerHTML = "";
+        if (!steps.length) {
+          box.innerHTML = '<div class="hint">No steps yet</div>';
+          return;
+        }
+        steps.forEach((step, i) => {
+          const row = document.createElement("div");
+          row.className = "step";
+          let label = step.type;
+          if (step.type === "scenario") label = `▶ ${step.scenarioName || step.scenarioId}`;
+          if (step.type === "power") label = `${step.on ? "ON" : "OFF"} ${step.deviceName || step.deviceId}`;
+          if (step.type === "range") label = `${step.instance}=${step.value} ${step.deviceName || ""}`;
+          if (step.type === "color_temp") label = `${step.temperature_k}K ${step.deviceName || ""}`;
+          if (step.type === "mode") label = `${step.instance}:${step.value} ${step.deviceName || ""}`;
+          row.innerHTML = `<span>${label}</span>`;
+          const del = document.createElement("button");
+          del.type = "button";
+          del.textContent = "×";
+          del.onclick = () => { steps.splice(i, 1); paintSteps(); void persist(); };
+          row.appendChild(del);
+          box.appendChild(row);
+        });
+      }
+      function fillTargets() {
+        const type = document.getElementById("stepType").value;
+        const sel = document.getElementById("stepTarget");
+        sel.innerHTML = "";
+        const list = type === "scenario" ? scenarios : devices;
+        for (const item of list) {
+          const o = document.createElement("option");
+          o.value = item.id;
+          o.textContent = item.name + (item.room ? ` (${item.room})` : "");
+          sel.appendChild(o);
+        }
+        document.getElementById("stepOn").style.display = type === "power" ? "" : "none";
+        document.getElementById("stepExtra").style.display = type === "power" || type === "scenario" ? "none" : "";
+        document.getElementById("stepExtra").placeholder =
+          type === "range" ? "brightness:40" :
+          type === "color_temp" ? "2700" :
+          type === "mode" ? "thermostat:cool" : "";
+      }
+      async function persist() {
+        const payload = await streamDeckClient.getSettings();
+        const s = { ...(payload.settings || {}) };
+        s.presetName = document.getElementById("presetName").value.trim();
+        s.stepsJson = JSON.stringify(steps);
+        streamDeckClient.setSettings(s);
+      }
+      async function restore() {
+        const payload = await streamDeckClient.getSettings();
+        const s = payload?.settings || {};
+        document.getElementById("presetName").value = s.presetName || "";
+        try { steps = s.stepsJson ? JSON.parse(s.stepsJson) : []; } catch { steps = []; }
+        if (!Array.isArray(steps)) steps = [];
+        fillTargets();
+        paintSteps();
+      }
+      document.getElementById("addBtn").onclick = () => {
+        const type = document.getElementById("stepType").value;
+        const id = document.getElementById("stepTarget").value;
+        if (!id) return;
+        if (type === "scenario") {
+          const sc = scenarios.find((x) => x.id === id);
+          steps.push({ type, scenarioId: id, scenarioName: sc?.name });
+        } else if (type === "power") {
+          const d = devices.find((x) => x.id === id);
+          steps.push({
+            type,
+            deviceId: id,
+            deviceName: d?.name,
+            on: document.getElementById("stepOn").value === "true",
+          });
+        } else if (type === "range") {
+          const raw = document.getElementById("stepExtra").value.trim() || "brightness:50";
+          const [instance, value] = raw.split(":");
+          const d = devices.find((x) => x.id === id);
+          steps.push({
+            type,
+            deviceId: id,
+            deviceName: d?.name,
+            instance: instance || "brightness",
+            value: Number(value || 50),
+          });
+        } else if (type === "color_temp") {
+          const d = devices.find((x) => x.id === id);
+          steps.push({
+            type,
+            deviceId: id,
+            deviceName: d?.name,
+            temperature_k: Number(document.getElementById("stepExtra").value || 2700),
+          });
+        } else if (type === "mode") {
+          const raw = document.getElementById("stepExtra").value.trim() || "thermostat:auto";
+          const [instance, value] = raw.split(":");
+          const d = devices.find((x) => x.id === id);
+          steps.push({
+            type,
+            deviceId: id,
+            deviceName: d?.name,
+            instance: instance || "thermostat",
+            value: value || "auto",
+          });
+        }
+        paintSteps();
+        void persist();
+      };
+      document.getElementById("presetName").onchange = () => void persist();
+      document.getElementById("stepType").onchange = () => fillTargets();
+      document.getElementById("refreshBtn").onclick = async () => {
+        setStatus("Loading…");
+        clearTimeout(loadTimer);
+        loadTimer = setTimeout(() => setStatus("No response from plugin."), 8000);
+        await streamDeckClient.send("sendToPlugin", { event: "refreshHome" });
+      };
+      streamDeckClient.sendToPropertyInspector.subscribe((ev) => {
+        const p = ev?.payload ?? {};
+        if (p.event === "homeLoading") return setStatus("Loading…");
+        clearTimeout(loadTimer);
+        if (p.event === "homeData") {
+          devices = p.devices || [];
+          scenarios = p.scenarios || [];
+          void restore().then(() => setStatus(`Ready · ${devices.length} devices`));
+        }
+        if (p.event === "homeError") setStatus("Error: " + (p.detail || p.message));
+      });
+      window.addEventListener("load", () => {
+        void restore();
+        setTimeout(() => document.getElementById("refreshBtn").click(), 300);
+      });
+    </script>
+  </body>
+</html>

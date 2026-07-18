@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Color Light</title>
+    <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+    <link rel="stylesheet" href="alice.css" />
+  </head>
+  <body>
+    <sdpi-item label="OAuth token">
+      <sdpi-textarea setting="oauthToken" global="true" rows="2"></sdpi-textarea>
+    </sdpi-item>
+    <p class="hint">Press cycles presets. Dial fine-tunes temperature or hue.</p>
+    <sdpi-item label="Device">
+      <div class="row">
+        <select class="native" id="deviceSelect" style="flex:1"></select>
+        <button class="refresh" id="refreshBtn" type="button">↻</button>
+      </div>
+    </sdpi-item>
+    <sdpi-item label="Cycle">
+      <select class="native" id="cycleKind">
+        <option value="temperature_k">Color temperature</option>
+        <option value="hsv">HSV colors</option>
+        <option value="scene">Light scenes</option>
+      </select>
+    </sdpi-item>
+    <sdpi-item label="Dial">
+      <select class="native" id="dialKind">
+        <option value="temperature_k">Temperature (K)</option>
+        <option value="hsv">Hue</option>
+      </select>
+    </sdpi-item>
+    <p id="status"></p>
+    <script>
+      const { streamDeckClient } = SDPIComponents;
+      let devices = [], loadTimer;
+      function setStatus(t) { document.getElementById("status").textContent = t || ""; }
+      function fill() {
+        const sel = document.getElementById("deviceSelect");
+        const cur = sel.value;
+        sel.innerHTML = "";
+        const empty = document.createElement("option");
+        empty.value = ""; empty.textContent = devices.length ? "— select —" : "— none —";
+        sel.appendChild(empty);
+        for (const d of devices) {
+          const o = document.createElement("option");
+          o.value = d.id;
+          o.textContent = d.room ? `${d.name} (${d.room})` : d.name;
+          sel.appendChild(o);
+        }
+        if (cur) sel.value = cur;
+      }
+      async function persist() {
+        const d = devices.find((x) => x.id === document.getElementById("deviceSelect").value);
+        const payload = await streamDeckClient.getSettings();
+        const s = { ...(payload.settings || {}) };
+        s.deviceId = d?.id || "";
+        s.deviceName = d?.name || "";
+        s.deviceType = d?.type || "";
+        s.cycleKind = document.getElementById("cycleKind").value;
+        s.dialKind = document.getElementById("dialKind").value;
+        streamDeckClient.setSettings(s);
+      }
+      async function restore() {
+        const payload = await streamDeckClient.getSettings();
+        const s = payload?.settings || {};
+        fill();
+        if (s.deviceId) document.getElementById("deviceSelect").value = s.deviceId;
+        if (s.cycleKind) document.getElementById("cycleKind").value = s.cycleKind;
+        if (s.dialKind) document.getElementById("dialKind").value = s.dialKind;
+      }
+      async function refresh() {
+        setStatus("Loading…");
+        clearTimeout(loadTimer);
+        loadTimer = setTimeout(() => setStatus("No response from plugin."), 8000);
+        await streamDeckClient.send("sendToPlugin", { event: "refreshHome" });
+      }
+      document.getElementById("refreshBtn").onclick = () => void refresh();
+      ["deviceSelect","cycleKind","dialKind"].forEach((id) =>
+        document.getElementById(id).addEventListener("change", () => void persist())
+      );
+      streamDeckClient.sendToPropertyInspector.subscribe((ev) => {
+        const p = ev?.payload ?? {};
+        if (p.event === "homeLoading") return setStatus("Loading…");
+        clearTimeout(loadTimer);
+        if (p.event === "homeData") {
+          devices = (p.devices || []).filter((d) => d.color);
+          void restore().then(() => setStatus(`Color devices: ${devices.length}`));
+        }
+        if (p.event === "homeError") setStatus("Error: " + (p.detail || p.message));
+      });
+      window.addEventListener("load", () => setTimeout(() => void refresh(), 300));
+    </script>
+  </body>
+</html>

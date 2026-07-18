@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Yandex Alice — Scenario</title>
+    <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+    <style>
+      :root {
+        --void: #0b0614;
+        --panel: #140a22;
+        --panel-2: #1c0f30;
+        --neon: #a855f7;
+        --glow: #c026ff;
+        --text: #f3e8ff;
+        --muted: #c4b5fd;
+        --dim: #6b21a8;
+      }
+      body {
+        --sdpi-bgcolor: var(--void);
+        --sdpi-color: var(--text);
+        --sdpi-bordercolor: var(--neon);
+        margin: 0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+      }
+      .hint {
+        color: var(--muted);
+        font-size: 11px;
+        margin: 4px 0 10px;
+        line-height: 1.35;
+      }
+      .picker-row {
+        display: flex;
+        gap: 8px;
+        align-items: stretch;
+        width: 100%;
+      }
+      .picker {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+      }
+      .picker-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(180deg, var(--panel-2), var(--panel));
+        color: var(--text);
+        border: 1px solid color-mix(in srgb, var(--neon) 55%, transparent);
+        border-radius: 10px;
+        padding: 8px 10px;
+        cursor: pointer;
+        text-align: left;
+        box-shadow: 0 0 0 1px rgba(192, 38, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      }
+      .picker-btn:hover {
+        border-color: var(--glow);
+        box-shadow: 0 0 12px rgba(192, 38, 255, 0.22);
+      }
+      .picker-btn .glyph {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: radial-gradient(circle at 40% 30%, #2a1050, #12081f);
+        border: 1px solid var(--dim);
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        color: var(--neon);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .picker-btn .meta {
+        min-width: 0;
+        flex: 1;
+      }
+      .picker-btn .name {
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .picker-btn .sub {
+        font-size: 10px;
+        color: var(--muted);
+      }
+      .picker-btn .chev {
+        color: var(--muted);
+        font-size: 10px;
+      }
+      .menu {
+        display: none;
+        position: absolute;
+        z-index: 40;
+        left: 0;
+        right: 0;
+        top: calc(100% + 6px);
+        max-height: 220px;
+        overflow: auto;
+        background: #10081c;
+        border: 1px solid color-mix(in srgb, var(--neon) 60%, #000);
+        border-radius: 12px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55), 0 0 18px rgba(168, 85, 247, 0.18);
+        padding: 6px;
+      }
+      .picker.open .menu {
+        display: block;
+      }
+      .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        border: 0;
+        background: transparent;
+        color: var(--text);
+        border-radius: 8px;
+        padding: 8px;
+        cursor: pointer;
+        text-align: left;
+      }
+      .menu-item:hover,
+      .menu-item.active {
+        background: linear-gradient(90deg, rgba(168, 85, 247, 0.28), rgba(168, 85, 247, 0.08));
+      }
+      .menu-item .glyph {
+        width: 26px;
+        height: 26px;
+        border-radius: 7px;
+        background: #1a0b2e;
+        border: 1px solid var(--dim);
+        display: grid;
+        place-items: center;
+        color: var(--neon);
+        font-size: 11px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .menu-item .name {
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .menu-empty {
+        padding: 12px;
+        color: var(--muted);
+        font-size: 11px;
+        text-align: center;
+      }
+      button.refresh {
+        background: linear-gradient(180deg, #8b5cf6, #6d28d9);
+        color: #fff;
+        border: 0;
+        border-radius: 10px;
+        padding: 0 12px;
+        cursor: pointer;
+        min-width: 40px;
+        box-shadow: 0 0 12px rgba(168, 85, 247, 0.35);
+      }
+      #status {
+        color: var(--muted);
+        font-size: 11px;
+        min-height: 16px;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <sdpi-item label="OAuth token">
+      <sdpi-textarea
+        setting="oauthToken"
+        global="true"
+        rows="3"
+        placeholder="Paste Yandex OAuth token (iot:view + iot:control)"
+      ></sdpi-textarea>
+    </sdpi-item>
+    <p class="hint">
+      Token is shared across all Alice actions. Scopes: <code>iot:view</code> +
+      <code>iot:control</code>.
+    </p>
+
+    <sdpi-item label="Scenario">
+      <div class="picker-row">
+        <div class="picker" id="scenarioPicker">
+          <button class="picker-btn" id="pickerBtn" type="button">
+            <span class="glyph">▶</span>
+            <span class="meta">
+              <div class="name" id="pickerName">— refresh list —</div>
+              <div class="sub" id="pickerSub">Choose a scenario</div>
+            </span>
+            <span class="chev">▾</span>
+          </button>
+          <div class="menu" id="scenarioMenu"></div>
+        </div>
+        <button class="refresh" id="refreshBtn" type="button" title="Refresh">↻</button>
+      </div>
+    </sdpi-item>
+    <p id="status"></p>
+
+    <script>
+      const { streamDeckClient } = SDPIComponents;
+      let loadTimer;
+      let scenarios = [];
+      let selectedId = "";
+
+      function setStatus(text) {
+        document.getElementById("status").textContent = text || "";
+      }
+
+      function selectedScenario() {
+        return scenarios.find((s) => s.id === selectedId);
+      }
+
+      function paintButton() {
+        const s = selectedScenario();
+        const name = document.getElementById("pickerName");
+        const sub = document.getElementById("pickerSub");
+        if (!s) {
+          name.textContent = scenarios.length ? "— select scenario —" : "— no scenarios —";
+          sub.textContent = scenarios.length ? "Tap to open list" : "Refresh after token";
+          return;
+        }
+        name.textContent = s.name;
+        sub.textContent = "Scenario";
+      }
+
+      function fillMenu() {
+        const menu = document.getElementById("scenarioMenu");
+        menu.innerHTML = "";
+        if (!scenarios.length) {
+          menu.innerHTML = '<div class="menu-empty">No scenarios found</div>';
+          paintButton();
+          return;
+        }
+
+        for (const s of scenarios) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "menu-item" + (s.id === selectedId ? " active" : "");
+          btn.innerHTML =
+            '<span class="glyph">▶</span><span class="meta"><div class="name"></div></span>';
+          btn.querySelector(".name").textContent = s.name;
+          btn.addEventListener("click", () => {
+            selectedId = s.id;
+            document.getElementById("scenarioPicker").classList.remove("open");
+            paintButton();
+            void persistSelection();
+          });
+          menu.appendChild(btn);
+        }
+        paintButton();
+      }
+
+      async function persistSelection() {
+        const s = selectedScenario();
+        if (!s) return;
+        const payload = await streamDeckClient.getSettings();
+        const settings = { ...(payload.settings || {}) };
+        settings.scenarioId = s.id;
+        settings.scenarioName = s.name;
+        streamDeckClient.setSettings(settings);
+      }
+
+      async function restoreSelection() {
+        const payload = await streamDeckClient.getSettings();
+        selectedId = payload?.settings?.scenarioId || selectedId || "";
+        fillMenu();
+      }
+
+      async function refreshHome() {
+        setStatus("Loading…");
+        clearTimeout(loadTimer);
+        loadTimer = setTimeout(() => {
+          setStatus("No response from plugin. Is the plugin running?");
+        }, 8000);
+
+        try {
+          await streamDeckClient.send("sendToPlugin", { event: "refreshHome" });
+        } catch (error) {
+          clearTimeout(loadTimer);
+          setStatus("Send failed: " + (error?.message || error));
+        }
+      }
+
+      document.getElementById("pickerBtn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        document.getElementById("scenarioPicker").classList.toggle("open");
+      });
+
+      document.getElementById("refreshBtn").addEventListener("click", () => {
+        void refreshHome();
+      });
+
+      document.addEventListener("click", () => {
+        document.getElementById("scenarioPicker").classList.remove("open");
+      });
+
+      streamDeckClient.sendToPropertyInspector.subscribe((ev) => {
+        const payload = ev?.payload ?? {};
+
+        if (payload.event === "homeLoading") {
+          setStatus("Plugin connected, loading…");
+          return;
+        }
+
+        clearTimeout(loadTimer);
+
+        if (payload.event === "homeData") {
+          scenarios = payload.scenarios || [];
+          void restoreSelection().then(() => {
+            setStatus(`Loaded ${scenarios.length} scenarios`);
+          });
+        }
+        if (payload.event === "homeError") {
+          setStatus(`Error: ${payload.detail || payload.message}`);
+        }
+      });
+
+      window.addEventListener("load", () => {
+        setTimeout(() => void refreshHome(), 400);
+      });
+    </script>
+  </body>
+</html>

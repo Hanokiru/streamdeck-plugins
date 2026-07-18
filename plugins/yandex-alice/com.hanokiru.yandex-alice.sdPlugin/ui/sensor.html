@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sensor</title>
+    <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+    <link rel="stylesheet" href="alice.css" />
+  </head>
+  <body>
+    <sdpi-item label="OAuth token">
+      <sdpi-textarea setting="oauthToken" global="true" rows="2"></sdpi-textarea>
+    </sdpi-item>
+    <p class="hint">Display-only sensor values (temperature, humidity, CO₂…).</p>
+    <sdpi-item label="Device">
+      <div class="row">
+        <select class="native" id="deviceSelect" style="flex:1"></select>
+        <button class="refresh" id="refreshBtn" type="button">↻</button>
+      </div>
+    </sdpi-item>
+    <sdpi-item label="Property">
+      <select class="native" id="propertySelect"></select>
+    </sdpi-item>
+    <sdpi-item label="Sync every (sec)">
+      <sdpi-range setting="pollIntervalSeconds" min="10" max="120" step="5" default="30"></sdpi-range>
+    </sdpi-item>
+    <p id="status"></p>
+    <script>
+      const { streamDeckClient } = SDPIComponents;
+      let devices = [], loadTimer;
+      function setStatus(t) { document.getElementById("status").textContent = t || ""; }
+      function selected() { return devices.find((d) => d.id === document.getElementById("deviceSelect").value); }
+      function fillDevices() {
+        const sel = document.getElementById("deviceSelect");
+        const cur = sel.value;
+        sel.innerHTML = '<option value="">— select —</option>';
+        for (const d of devices) {
+          const o = document.createElement("option");
+          o.value = d.id;
+          o.textContent = d.room ? `${d.name} (${d.room})` : d.name;
+          sel.appendChild(o);
+        }
+        if (cur) sel.value = cur;
+      }
+      function fillProps(preferred) {
+        const sel = document.getElementById("propertySelect");
+        const d = selected();
+        sel.innerHTML = "";
+        if (!d?.properties?.length) {
+          sel.innerHTML = '<option value="">—</option>';
+          return;
+        }
+        for (const p of d.properties) {
+          const o = document.createElement("option");
+          o.value = p.instance;
+          o.textContent = `${p.instance}${p.value != null ? ` = ${p.value}` : ""}`;
+          sel.appendChild(o);
+        }
+        if (preferred) sel.value = preferred;
+      }
+      async function persist() {
+        const d = selected();
+        const payload = await streamDeckClient.getSettings();
+        const s = { ...(payload.settings || {}) };
+        s.deviceId = d?.id || "";
+        s.deviceName = d?.name || "";
+        s.deviceType = d?.type || "";
+        s.propertyInstance = document.getElementById("propertySelect").value;
+        streamDeckClient.setSettings(s);
+      }
+      async function restore() {
+        const payload = await streamDeckClient.getSettings();
+        const s = payload?.settings || {};
+        fillDevices();
+        if (s.deviceId) document.getElementById("deviceSelect").value = s.deviceId;
+        fillProps(s.propertyInstance);
+      }
+      async function refresh() {
+        setStatus("Loading…");
+        clearTimeout(loadTimer);
+        loadTimer = setTimeout(() => setStatus("No response from plugin."), 8000);
+        await streamDeckClient.send("sendToPlugin", { event: "refreshHome" });
+      }
+      document.getElementById("refreshBtn").onclick = () => void refresh();
+      document.getElementById("deviceSelect").onchange = () => { fillProps(); void persist(); };
+      document.getElementById("propertySelect").onchange = () => void persist();
+      streamDeckClient.sendToPropertyInspector.subscribe((ev) => {
+        const p = ev?.payload ?? {};
+        if (p.event === "homeLoading") return setStatus("Loading…");
+        clearTimeout(loadTimer);
+        if (p.event === "homeData") {
+          devices = (p.devices || []).filter((d) => (d.properties || []).length);
+          void restore().then(() => setStatus(`Sensors: ${devices.length}`));
+        }
+        if (p.event === "homeError") setStatus("Error: " + (p.detail || p.message));
+      });
+      window.addEventListener("load", () => setTimeout(() => void refresh(), 300));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,105 @@
+/* Shared PI chrome for Alice plugin — included via <link> or inline copy */
+:root {
+  --void: #0b0614;
+  --panel: #140a22;
+  --panel-2: #1c0f30;
+  --neon: #a855f7;
+  --glow: #c026ff;
+  --text: #f3e8ff;
+  --muted: #c4b5fd;
+  --dim: #6b21a8;
+}
+body {
+  --sdpi-bgcolor: var(--void);
+  --sdpi-color: var(--text);
+  --sdpi-bordercolor: var(--neon);
+  margin: 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+.hint {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 4px 0 10px;
+  line-height: 1.35;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+.field label {
+  font-size: 10px;
+  color: var(--muted);
+}
+select.native,
+input.native,
+textarea.native {
+  width: 100%;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--neon) 45%, transparent);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  width: 100%;
+}
+button.refresh,
+button.btn {
+  background: linear-gradient(180deg, #8b5cf6, #6d28d9);
+  color: #fff;
+  border: 0;
+  border-radius: 10px;
+  padding: 0 12px;
+  cursor: pointer;
+  min-width: 40px;
+  font-size: 12px;
+}
+button.btn {
+  padding: 8px 12px;
+  width: 100%;
+}
+#status {
+  color: var(--muted);
+  font-size: 11px;
+  min-height: 16px;
+  margin-top: 8px;
+}
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  overflow: auto;
+}
+.step {
+  background: var(--panel);
+  border: 1px solid color-mix(in srgb, var(--neon) 35%, transparent);
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 11px;
+  color: var(--text);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+.step button {
+  background: transparent;
+  border: 0;
+  color: #f472b6;
+  cursor: pointer;
+  font-size: 14px;
+}

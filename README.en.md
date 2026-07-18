@@ -20,77 +20,91 @@
 
 A collection of custom plugins for [Elgato Stream Deck](https://www.elgato.com/stream-deck).
 
+Author: **[Hanokiru](https://github.com/Hanokiru)**.
+
 ## Plugins
 
 | Plugin | Version | Description |
 |--------|---------|-------------|
-| [**True Cursor Usage**](./plugins/cursor-usage/README.en.md) | `0.2.0.0` | Remaining Cursor AI usage on keys and dials (Total / Auto / API) |
+| [**True Cursor Usage**](./plugins/cursor-usage/) | `0.2.0.0` | Remaining Cursor AI usage on keys and dials (Total / Auto / API) |
+| [**Yandex Alice Home**](./plugins/yandex-alice/) | `0.3.0.0` | Yandex Smart Home: scenarios, devices, dials, color, modes, rooms, sensors, presets |
 
-## Installation
+## Install (end users)
 
-### For users (no build required)
+1. Open [**Releases**](https://github.com/Hanokiru/streamdeck-plugins/releases)
+2. Download the `.streamDeckPlugin` you need:
+   - `com.hanokiru.cursor-usage.streamDeckPlugin`
+   - `com.hanokiru.yandex-alice.streamDeckPlugin`
+3. Double-click the file — Stream Deck installs the plugin
 
-1. Open [**Releases**](https://github.com/Hanokiru/streamdeck-plugins/releases) on GitHub
-2. Download `com.hanokiru.cursor-usage.streamDeckPlugin`
-3. Double-click the file — Stream Deck will install the plugin
+Detailed guides:
 
-### For developers (from source)
+- Cursor Usage → [RU](./plugins/cursor-usage/README.md) · [EN](./plugins/cursor-usage/README.en.md)
+- Yandex Alice Home → [RU](./plugins/yandex-alice/README.md) · [EN](./plugins/yandex-alice/README.en.md)
 
-```bash
-git clone https://github.com/Hanokiru/streamdeck-plugins.git
-cd streamdeck-plugins/plugins/cursor-usage
-npm install
-npm run icons
-npm run build
-```
-
-Copy `com.hanokiru.cursor-usage.sdPlugin` to the plugins folder:
+### Stream Deck plugins folder
 
 | OS | Path |
 |----|------|
 | **Windows** | `%APPDATA%\Elgato\StreamDeck\Plugins\` |
 | **macOS** | `~/Library/Application Support/com.elgato.StreamDeck/Plugins/` |
 
-Restart Stream Deck.
-
-## Building a release
+## Build from source
 
 ```bash
-cd plugins/cursor-usage
+git clone https://github.com/Hanokiru/streamdeck-plugins.git
+
+# Cursor Usage
+cd streamdeck-plugins/plugins/cursor-usage
+npm install && npm run icons && npm run build
+
+# Yandex Alice Home
+cd ../yandex-alice
+npm install && npm run icons && npm run build
+```
+
+## Pack a release
+
+```bash
+cd plugins/yandex-alice   # or cursor-usage
 npm run pack
+# → releases/com.hanokiru.*.streamDeckPlugin
 ```
 
-The package will appear in `plugins/cursor-usage/releases/`.
+A plugin tag triggers GitHub Actions: validate + pack **only that** plugin + upload to its own Release.
 
-## Development
+| Plugin | Example tag | Release asset |
+|--------|-------------|---------------|
+| Alice | `yandex-alice-v0.3.0.0` | only `com.hanokiru.yandex-alice.streamDeckPlugin` |
+| Cursor Usage | `cursor-usage-v0.3.0.0` | only `com.hanokiru.cursor-usage.streamDeckPlugin` |
 
-```bash
-cd plugins/cursor-usage
-npm run watch   # hot-reload (requires Stream Deck CLI)
-```
+Earlier releases of other plugins **remain** in the Releases list.
 
 ## Repository structure
 
 ```
 streamdeck-plugins/
 ├── plugins/
-│   └── cursor-usage/
-│       ├── src/                    # TypeScript sources
-│       ├── scripts/                # icon generation
-│       ├── com.hanokiru.cursor-usage.sdPlugin/
-│       │   ├── manifest.json
-│       │   ├── ui/
-│       │   ├── layouts/
-│       │   └── imgs/
-│       └── releases/               # .streamDeckPlugin (not in git)
+│   ├── cursor-usage/
+│   └── yandex-alice/
+│       ├── src/
+│       ├── scripts/
+│       ├── com.hanokiru.yandex-alice.sdPlugin/
+│       └── releases/          # not in git
 ├── .github/workflows/ci.yml
 └── LICENSE
 ```
 
-## What is not committed to git
+## What is not committed
 
-Build artifacts (`bin/plugin.js`, `sql-wasm.wasm`, `*.streamDeckPlugin`) are gitignored — build locally or download from Releases. **Your session token is never stored in the repo** — it lives only in Stream Deck settings on your PC.
+- `bin/plugin.js`, `*.streamDeckPlugin`, `releases/`
+- `.env`, `.env.local`, any secrets
+- runtime logs `*.sdPlugin/logs/*`
+
+Tokens live **only locally** in your Stream Deck profile on your PC.
 
 ## Author
 
 [Hanokiru](https://github.com/Hanokiru)
+
+MIT License — see [LICENSE](./LICENSE).

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Yandex Alice — Device</title>
+    <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+    <style>
+      :root {
+        --void: #0b0614;
+        --panel: #140a22;
+        --panel-2: #1c0f30;
+        --neon: #a855f7;
+        --glow: #c026ff;
+        --text: #f3e8ff;
+        --muted: #c4b5fd;
+        --dim: #6b21a8;
+      }
+      body {
+        --sdpi-bgcolor: var(--void);
+        --sdpi-color: var(--text);
+        --sdpi-bordercolor: var(--neon);
+        margin: 0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+      }
+      .hint {
+        color: var(--muted);
+        font-size: 11px;
+        margin: 4px 0 10px;
+        line-height: 1.35;
+      }
+      .picker-row {
+        display: flex;
+        gap: 8px;
+        align-items: stretch;
+        width: 100%;
+      }
+      .picker {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+      }
+      .picker-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(180deg, var(--panel-2), var(--panel));
+        color: var(--text);
+        border: 1px solid color-mix(in srgb, var(--neon) 55%, transparent);
+        border-radius: 10px;
+        padding: 8px 10px;
+        cursor: pointer;
+        text-align: left;
+        box-shadow: 0 0 0 1px rgba(192, 38, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      }
+      .picker-btn:hover {
+        border-color: var(--glow);
+        box-shadow: 0 0 12px rgba(192, 38, 255, 0.22);
+      }
+      .picker-btn .glyph {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: radial-gradient(circle at 40% 30%, #2a1050, #12081f);
+        border: 1px solid var(--dim);
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        color: var(--neon);
+        font-size: 13px;
+      }
+      .picker-btn .meta {
+        min-width: 0;
+        flex: 1;
+      }
+      .picker-btn .name {
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .picker-btn .sub {
+        font-size: 10px;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .picker-btn .chev {
+        color: var(--muted);
+        font-size: 10px;
+        opacity: 0.8;
+      }
+      .menu {
+        display: none;
+        position: absolute;
+        z-index: 40;
+        left: 0;
+        right: 0;
+        top: calc(100% + 6px);
+        max-height: 220px;
+        overflow: auto;
+        background: #10081c;
+        border: 1px solid color-mix(in srgb, var(--neon) 60%, #000);
+        border-radius: 12px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55), 0 0 18px rgba(168, 85, 247, 0.18);
+        padding: 6px;
+      }
+      .picker.open .menu {
+        display: block;
+      }
+      .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        border: 0;
+        background: transparent;
+        color: var(--text);
+        border-radius: 8px;
+        padding: 8px;
+        cursor: pointer;
+        text-align: left;
+      }
+      .menu-item:hover,
+      .menu-item.active {
+        background: linear-gradient(90deg, rgba(168, 85, 247, 0.28), rgba(168, 85, 247, 0.08));
+      }
+      .menu-item .glyph {
+        width: 26px;
+        height: 26px;
+        border-radius: 7px;
+        background: #1a0b2e;
+        border: 1px solid var(--dim);
+        display: grid;
+        place-items: center;
+        color: var(--neon);
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+      .menu-item .name {
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .menu-item .sub {
+        font-size: 10px;
+        color: var(--muted);
+      }
+      .menu-empty {
+        padding: 12px;
+        color: var(--muted);
+        font-size: 11px;
+        text-align: center;
+      }
+      button.refresh {
+        background: linear-gradient(180deg, #8b5cf6, #6d28d9);
+        color: #fff;
+        border: 0;
+        border-radius: 10px;
+        padding: 0 12px;
+        cursor: pointer;
+        min-width: 40px;
+        box-shadow: 0 0 12px rgba(168, 85, 247, 0.35);
+      }
+      button.refresh:hover {
+        filter: brightness(1.08);
+      }
+      #status {
+        color: var(--muted);
+        font-size: 11px;
+        min-height: 16px;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <sdpi-item label="OAuth token">
+      <sdpi-textarea
+        setting="oauthToken"
+        global="true"
+        rows="3"
+        placeholder="Paste Yandex OAuth token (iot:view + iot:control)"
+      ></sdpi-textarea>
+    </sdpi-item>
+    <p class="hint">
+      Shared across Alice actions. Icons adapt to device type (light, purifier, speaker…).
+    </p>
+
+    <sdpi-item label="Device">
+      <div class="picker-row">
+        <div class="picker" id="devicePicker">
+          <button class="picker-btn" id="pickerBtn" type="button">
+            <span class="glyph" id="pickerGlyph">✦</span>
+            <span class="meta">
+              <div class="name" id="pickerName">— refresh list —</div>
+              <div class="sub" id="pickerSub">Choose a device</div>
+            </span>
+            <span class="chev">▾</span>
+          </button>
+          <div class="menu" id="deviceMenu"></div>
+        </div>
+        <button class="refresh" id="refreshBtn" type="button" title="Refresh">↻</button>
+      </div>
+    </sdpi-item>
+
+    <sdpi-item label="Sync every (sec)">
+      <sdpi-range
+        setting="pollIntervalSeconds"
+        min="15"
+        max="300"
+        step="15"
+        default="60"
+      ></sdpi-range>
+    </sdpi-item>
+    <p id="status"></p>
+
+    <script>
+      const { streamDeckClient } = SDPIComponents;
+      let loadTimer;
+      let devices = [];
+      let selectedId = "";
+
+      const KIND_GLYPH = {
+        light: "💡",
+        strip: "▬",
+        socket: "⏻",
+        speaker: "◉",
+        tv: "▣",
+        headphones: "🎧",
+        purifier: "🌬",
+        humidifier: "💧",
+        climate: "❄",
+        kettle: "♨",
+        vacuum: "◌",
+        curtain: "☰",
+        sensor: "◎",
+        pc: "💻",
+        other: "✦",
+      };
+
+      function resolveKind(type, name) {
+        const t = (type || "").toLowerCase();
+        const n = name || "";
+        if (t.includes("light.strip")) return "strip";
+        if (t.includes("light")) return "light";
+        if (t.includes("socket") || t.includes("switch")) return "socket";
+        if (t.includes("smart_speaker") || t.includes("speaker")) return "speaker";
+        if (t.includes("media_device") || t.includes(".tv")) return "tv";
+        if (t.includes("purifier")) return "purifier";
+        if (t.includes("humidifier")) return "humidifier";
+        if (t.includes("thermostat") || t.includes("ac")) return "climate";
+        if (t.includes("kettle") || t.includes("cooking")) return "kettle";
+        if (t.includes("vacuum")) return "vacuum";
+        if (t.includes("curtain") || t.includes("openable")) return "curtain";
+        if (t.includes("sensor")) return "sensor";
+        if (/наушник|headphone/i.test(n)) return "headphones";
+        if (/лент|strip/i.test(n)) return "strip";
+        if (/очистител|purifier/i.test(n)) return "purifier";
+        if (/ноутбук|laptop|компьютер/i.test(n)) return "pc";
+        if (/станци|колонк|алиса/i.test(n)) return "speaker";
+        if (/ламп|свет/i.test(n)) return "light";
+        return "other";
+      }
+
+      function setStatus(text) {
+        document.getElementById("status").textContent = text || "";
+      }
+
+      function selectedDevice() {
+        return devices.find((d) => d.id === selectedId);
+      }
+
+      function paintButton() {
+        const d = selectedDevice();
+        const glyph = document.getElementById("pickerGlyph");
+        const name = document.getElementById("pickerName");
+        const sub = document.getElementById("pickerSub");
+        if (!d) {
+          glyph.textContent = "✦";
+          name.textContent = devices.length ? "— select device —" : "— no devices —";
+          sub.textContent = devices.length ? "Tap to open list" : "Refresh after token";
+          return;
+        }
+        const kind = resolveKind(d.type, d.name);
+        glyph.textContent = KIND_GLYPH[kind] || "✦";
+        name.textContent = d.name;
+        sub.textContent = [d.room, kind].filter(Boolean).join(" · ");
+      }
+
+      function fillMenu() {
+        const menu = document.getElementById("deviceMenu");
+        menu.innerHTML = "";
+        if (!devices.length) {
+          menu.innerHTML = '<div class="menu-empty">No on/off devices found</div>';
+          paintButton();
+          return;
+        }
+
+        for (const d of devices) {
+          const kind = resolveKind(d.type, d.name);
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "menu-item" + (d.id === selectedId ? " active" : "");
+          btn.innerHTML =
+            '<span class="glyph">' +
+            (KIND_GLYPH[kind] || "✦") +
+            '</span><span class="meta"><div class="name"></div><div class="sub"></div></span>';
+          btn.querySelector(".name").textContent = d.name;
+          btn.querySelector(".sub").textContent = [d.room, kind].filter(Boolean).join(" · ");
+          btn.addEventListener("click", () => {
+            selectedId = d.id;
+            document.getElementById("devicePicker").classList.remove("open");
+            paintButton();
+            void persistSelection();
+          });
+          menu.appendChild(btn);
+        }
+        paintButton();
+      }
+
+      async function persistSelection() {
+        const d = selectedDevice();
+        if (!d) return;
+        const payload = await streamDeckClient.getSettings();
+        const settings = { ...(payload.settings || {}) };
+        settings.deviceId = d.id;
+        settings.deviceName = d.name;
+        settings.deviceType = d.type || "";
+        streamDeckClient.setSettings(settings);
+      }
+
+      async function restoreSelection() {
+        const payload = await streamDeckClient.getSettings();
+        selectedId = payload?.settings?.deviceId || selectedId || "";
+        fillMenu();
+      }
+
+      async function refreshHome() {
+        setStatus("Loading…");
+        clearTimeout(loadTimer);
+        loadTimer = setTimeout(() => {
+          setStatus("No response from plugin. Is the plugin running?");
+        }, 8000);
+
+        try {
+          await streamDeckClient.send("sendToPlugin", { event: "refreshHome" });
+        } catch (error) {
+          clearTimeout(loadTimer);
+          setStatus("Send failed: " + (error?.message || error));
+        }
+      }
+
+      document.getElementById("pickerBtn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        document.getElementById("devicePicker").classList.toggle("open");
+      });
+
+      document.getElementById("refreshBtn").addEventListener("click", () => {
+        void refreshHome();
+      });
+
+      document.addEventListener("click", () => {
+        document.getElementById("devicePicker").classList.remove("open");
+      });
+
+      streamDeckClient.sendToPropertyInspector.subscribe((ev) => {
+        const payload = ev?.payload ?? {};
+
+        if (payload.event === "homeLoading") {
+          setStatus("Plugin connected, loading…");
+          return;
+        }
+
+        clearTimeout(loadTimer);
+
+        if (payload.event === "homeData") {
+          devices = (payload.devices || []).filter((d) => d.hasOnOff);
+          void restoreSelection().then(() => {
+            setStatus(`Loaded ${devices.length} devices`);
+          });
+        }
+        if (payload.event === "homeError") {
+          setStatus(`Error: ${payload.detail || payload.message}`);
+        }
+      });
+
+      window.addEventListener("load", () => {
+        setTimeout(() => void refreshHome(), 400);
+      });
+    </script>
+  </body>
+</html>

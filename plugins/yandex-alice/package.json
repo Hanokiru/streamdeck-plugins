@@ -1,0 +1,25 @@
+{
+  "name": "com.hanokiru.yandex-alice",
+  "version": "0.3.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "icons": "node scripts/generate-icons.mjs",
+    "auth-url": "node scripts/print-auth-url.mjs",
+    "pack": "npm run icons && npm run build && mkdir -p releases && npx streamdeck pack com.hanokiru.yandex-alice.sdPlugin -o releases -f",
+    "watch": "node esbuild.config.mjs --watch"
+  },
+  "prettier": "@elgato/prettier-config",
+  "devDependencies": {
+    "@elgato/cli": "^1.7.1",
+    "@elgato/prettier-config": "^0.3.3",
+    "@tsconfig/node20": "^20.1.2",
+    "@types/node": "^20.19.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@elgato/streamdeck": "^2.0.0"
+  }
+}

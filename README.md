@@ -20,77 +20,91 @@
 
 Коллекция кастомных плагинов для [Elgato Stream Deck](https://www.elgato.com/stream-deck).
 
+Автор: **[Hanokiru](https://github.com/Hanokiru)**.
+
 ## Плагины
 
 | Плагин | Версия | Описание |
 |--------|--------|----------|
 | [**True Cursor Usage**](./plugins/cursor-usage/) | `0.2.0.0` | Остаток Cursor AI usage на кнопках и dials (Total / Auto / API) |
+| [**Yandex Alice Home**](./plugins/yandex-alice/) | `0.3.0.0` | Умный дом Яндекса: сценарии, устройства, dials, цвет, режимы, комнаты, сенсоры, пресеты |
 
-## Установка
+## Установка для пользователей
 
-### Для пользователей (без сборки)
-
-1. Откройте [**Releases**](https://github.com/Hanokiru/streamdeck-plugins/releases) на GitHub
-2. Скачайте `com.hanokiru.cursor-usage.streamDeckPlugin`
+1. Откройте [**Releases**](https://github.com/Hanokiru/streamdeck-plugins/releases)
+2. Скачайте нужный `.streamDeckPlugin`:
+   - `com.hanokiru.cursor-usage.streamDeckPlugin`
+   - `com.hanokiru.yandex-alice.streamDeckPlugin`
 3. Дважды кликните по файлу — Stream Deck установит плагин
 
-### Для разработчиков (из исходников)
+Подробные инструкции:
 
-```bash
-git clone https://github.com/Hanokiru/streamdeck-plugins.git
-cd streamdeck-plugins/plugins/cursor-usage
-npm install
-npm run icons
-npm run build
-```
+- Cursor Usage → [RU](./plugins/cursor-usage/README.md) · [EN](./plugins/cursor-usage/README.en.md)
+- Yandex Alice Home → [RU](./plugins/yandex-alice/README.md) · [EN](./plugins/yandex-alice/README.en.md)
 
-Скопируйте `com.hanokiru.cursor-usage.sdPlugin` в каталог плагинов:
+### Папка плагинов Stream Deck
 
 | ОС | Путь |
 |----|------|
 | **Windows** | `%APPDATA%\Elgato\StreamDeck\Plugins\` |
 | **macOS** | `~/Library/Application Support/com.elgato.StreamDeck/Plugins/` |
 
-Перезапустите Stream Deck.
+## Сборка из исходников
+
+```bash
+git clone https://github.com/Hanokiru/streamdeck-plugins.git
+
+# Cursor Usage
+cd streamdeck-plugins/plugins/cursor-usage
+npm install && npm run icons && npm run build
+
+# Yandex Alice Home
+cd ../yandex-alice
+npm install && npm run icons && npm run build
+```
 
 ## Сборка релиза
 
 ```bash
-cd plugins/cursor-usage
+cd plugins/yandex-alice   # или cursor-usage
 npm run pack
+# → releases/com.hanokiru.*.streamDeckPlugin
 ```
 
-Архив появится в `plugins/cursor-usage/releases/`.
+Тег плагина запускает GitHub Actions: validate + pack **только этого** плагина + upload в отдельный Release.
 
-## Разработка
+| Плагин | Пример тега | Что попадёт в Release |
+|--------|-------------|------------------------|
+| Alice | `yandex-alice-v0.3.0.0` | только `com.hanokiru.yandex-alice.streamDeckPlugin` |
+| Cursor Usage | `cursor-usage-v0.3.0.0` | только `com.hanokiru.cursor-usage.streamDeckPlugin` |
 
-```bash
-cd plugins/cursor-usage
-npm run watch   # hot-reload (нужен Stream Deck CLI)
-```
+Предыдущие релизы других плагинов **остаются** в списке Releases.
 
 ## Структура репозитория
 
 ```
 streamdeck-plugins/
 ├── plugins/
-│   └── cursor-usage/
-│       ├── src/                    # TypeScript исходники
-│       ├── scripts/                # генерация иконок
-│       ├── com.hanokiru.cursor-usage.sdPlugin/
-│       │   ├── manifest.json
-│       │   ├── ui/
-│       │   ├── layouts/
-│       │   └── imgs/
-│       └── releases/               # .streamDeckPlugin (не в git)
+│   ├── cursor-usage/
+│   └── yandex-alice/
+│       ├── src/
+│       ├── scripts/
+│       ├── com.hanokiru.yandex-alice.sdPlugin/
+│       └── releases/          # не в git
 ├── .github/workflows/ci.yml
 └── LICENSE
 ```
 
 ## Что не попадает в git
 
-Сборочные артефакты (`bin/plugin.js`, `sql-wasm.wasm`, `*.streamDeckPlugin`) игнорируются — каждый собирает локально или качает из Releases. **Ваш токен в репозиторий не попадает** — он хранится только в настройках Stream Deck на вашем ПК.
+- `bin/plugin.js`, `*.streamDeckPlugin`, `releases/`
+- `.env`, `.env.local`, любые секреты
+- runtime-логи `*.sdPlugin/logs/*`
+
+Токены хранятся **только локально** в профиле Stream Deck на вашем ПК.
 
 ## Автор
 
 [Hanokiru](https://github.com/Hanokiru)
+
+MIT License — см. [LICENSE](./LICENSE).
